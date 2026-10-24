@@ -38,5 +38,21 @@ For educational use only, on my own lab machine.
 - **Command:** `nmap -sV 127.0.0.1`
 - **Result:** Port 80 open (Apache httpd 2.4.68, Debian). All other scanned ports closed.
 
+
+
 ### Screenshots
 - `IMG_20261024_194017_289.jpg`: DVWA home page after login.
+## Week 3: Nmap on Local Machine (127.0.0.1)
+
+**Environment:** Kali Linux inside VirtualBox. All scans were run against my own machine (127.0.0.1) for practice.
+
+### Scans run
+- **`nmap -sS 127.0.0.1` (SYN scan):** Port 80 (http) and port 3306 (mysql) open. The other 998 ports were closed. A SYN scan sends a connection request and reads the reply without completing the connection, so it is quicker and quieter than a full connect.
+- **`nmap -sV 127.0.0.1` (service version):** Port 80 running Apache httpd 2.4.68 (Debian). Port 3306 identified as MariaDB, from its banner.
+- **`nmap -sC -sV 127.0.0.1` (default scripts):** Confirmed the Apache default page title ("Apache2 Debian Default Page: It works") and the MariaDB version.
+- **`nmap -p- 127.0.0.1` (all ports):** Ports 80, 3306, and 35091 open. Port 35091 was identified with `sudo ss -tlnp | grep 35091` as belonging to containerd, listening on localhost only.
+
+### What I learned
+- Port 3306 is a database service. DVWA uses it to store user accounts, and an open database port should normally be reachable only from trusted hosts.
+- A default scan can miss services that a full port scan finds, so unknown open ports need to be checked, not ignored.
+- Each unknown port can be traced to its process before deciding whether it matters.
