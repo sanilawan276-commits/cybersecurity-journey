@@ -56,3 +56,15 @@ For educational use only, on my own lab machine.
 - Port 3306 is a database service. DVWA uses it to store user accounts, and an open database port should normally be reachable only from trusted hosts.
 - A default scan can miss services that a full port scan finds, so unknown open ports need to be checked, not ignored.
 - Each unknown port can be traced to its process before deciding whether it matters.
+## Week 8: SQL Injection Source Review (DVWA)
+
+I read the DVWA source code for the SQL Injection module at Low security to see how user input reaches the database.
+
+- **Finding:** The Low-level query inserts the user's input directly into the SQL string, between single quotes, without cleaning it first.
+- **Why it matters:** Because the input is part of the SQL text, the database can read it as commands, not just data.
+- **Fix:** Use a prepared statement (parameterized query). The SQL structure stays fixed, and the input is passed separately as data.
+
+**What I learned:** The vulnerability is in how the query is built, not in the form itself. A dropdown or popup changes how input is entered, but only parameterized queries on the server stop injection.
+
+### Screenshot
+- `05-sqli-source-low.png`: the `$query` line from the Low-level source.
