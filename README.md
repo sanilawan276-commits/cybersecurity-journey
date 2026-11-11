@@ -66,5 +66,38 @@ I read the DVWA source code for the SQL Injection module at Low security to see 
 
 **What I learned:** The vulnerability is in how the query is built, not in the form itself. A dropdown or popup changes how input is entered, but only parameterized queries on the server stop injection.
 
-### Screenshot
+### Screenshotweek11/IMG_20261111_214835_008.jpg 
 - `05-sqli-source-low.png`: the `$query` line from the Low-level source.
+## Week 11: Privilege Escalation Checks
+
+**Goal:** Understand how aweek11/IMG_20261111_214835_008.jpg (or whatever name you low-privilege user on Linux can find paths to root, and check whether the system is exposed to known escalation bugs.
+
+**What I did:**
+1. Checked identity and rights: `whoami` returned `kali`, `id` showed the `sudo` group, and `sudo -l` showed full sudo access with my password.
+2. Searched for SUID binaries: `find / -perm -4000 -type f 2>/dev/null | head -20`. Most were standard tools (`su`, `chfn`, `umount`, `ssh-keysign`, `pkexec`), plus `kismet_cap_linux_wifi`.
+3. Searched for writable directories: `find / -writable -type d 2>/dev/null` (filtered). Only my home folder and its app caches were writable.
+4. Checked for PwnKit (CVE-2021-4034): `dpkg -l polkitd pkexec | grep ^ii` showed version `127+really127-3kali1`, which is patched.
+5. Checked a SUID binary: `ls -l /usr/bin/kismet_cap_linux_wifi` showed `-rwsr-xr--`, owned by root and group `kismet`. My user isn't in that group.
+
+**What I learned:**
+- SUID binaries are a common privilege escalation path, so unusual ones need checking.
+- Sudo rights and group membership matter as much as file permissions.
+- A version check against known CVEs is a quick way to rule out a common exploit.
+
+**What I did not do:** I didn't run any exploit. All testing was on my own lab VM.
+
+**Next:** Look up any unfamiliar SUID binary on GTFOBins, then move on to vulnerability scanning.
+
+
+
+![Sudo rights and SUID search](week11/week11-sudo-and-suid-search.jpg)
+
+
+*sudo -l, id, and SUID binary search on my Kali VM.*
+
+
+
+![pkexec version and kismet SUID check](week11/week11-pkexec-kismet-check.jpg)
+
+
+*pkexec/polkitd version 127 (patched for PwnKit) and kismet_cap_linux_wifi permissions.*
